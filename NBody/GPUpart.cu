@@ -11,7 +11,7 @@ __global__ void kernel(float2* d_pixels, int Width, int Height) {
 		int y = d_pixels[pixelIndex].y;
 
 		if (x >= 1.0) {
-			d_pixels[pixelIndex].x = -1.0;
+			d_pixels[pixelIndex].x += -2.0;
 		}
 		d_pixels[pixelIndex].x += 0.005;
 	}

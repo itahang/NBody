@@ -91,7 +91,7 @@ public:
 		std::random_device rd;
 		std::mt19937 gen(rd());
 		std::normal_distribution<float> dist(0.0, 0.10f);
-		std::normal_distribution<float> dist2(0.0, 0.50f);
+		std::normal_distribution<float> dist2(0.0, 1.0f);
 
 
 		for (int i = 0; i < size; i += 1) {
@@ -139,7 +139,7 @@ public:
 
 		dim3 threads(32, 32);
 		dim3 blocks((width + threads.x - 1) / threads.x, (height + threads.y - 1) / threads.y);
-		std::cout << "Launching " << blocks.x << " blocks of " << threads.x << " threads" << std::endl;
+		//std::cout << "Launching " << blocks.x << " blocks of " << threads.x << " threads" << std::endl;
 
 		kernel << <blocks, threads >> > (d_pixels, width, height);
 
