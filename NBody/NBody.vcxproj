@@ -87,6 +87,7 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <CudaCompile Include="Body.cu" />
     <CudaCompile Include="GPUpart.cu" />
     <CudaCompile Include="GPUpart.cuh" />
     <CudaCompile Include="main.cpp" />

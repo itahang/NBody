@@ -13,6 +13,8 @@
 
 #include"GPUPart.cuh"
 #include"Shaders.h"
+#include"Body.cu"
+
 #define SOME_ERROR -1
 
 
@@ -28,10 +30,17 @@ private:
 			glfwTerminate();
 			return SOME_ERROR;
 		}
+
+		// Get the video mode of the primary monitor
+		
+		//GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+
+
+
 		glfwMakeContextCurrent(window);
 		glewInit();
 		glfwSwapInterval(1);
-		size = width * height;
+		size = Nrow * Ncol;
 
 		glfwSwapInterval(1);
 		cudaSetDevice(0);
@@ -44,11 +53,16 @@ private:
 
 	int height;
 	int width;
-	float* points;
+	Body* points;
 	GLuint shader;
+
 
 	size_t Nrow = 100;
 	size_t Ncol = 100;
+
+	//GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	//const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
 
 	GLFWwindow* window = nullptr;
 	GLuint VAO, VBO;
@@ -87,20 +101,35 @@ public:
 	}
 
 	void setPoints() {
-		points = new float[size * 2];
+		points = new Body[size];
 		std::random_device rd;
 		std::mt19937 gen(rd());
 		std::normal_distribution<float> dist(0.0, 0.10f);
 		std::normal_distribution<float> dist2(0.0, 1.0f);
+		std::uniform_real_distribution<float> uni(0.0, 1.0f);
 
 
-		for (int i = 0; i < size; i += 1) {
-			points[i] = dist(gen);
+
+		for (int i = 0; i < size/2; i += 1) {
+			points[i].position = { dist(gen),dist(gen) };
+			points[i].velocity = { 0,0 };
+			points[i].acceleration = { 0,0 };
+			points[i].mass = 1000 * uni(gen);
 		}
-
-		for (int i = size; i < size * 2; i += 1) {
-			points[i] = dist2(gen);
+		for (int i = static_cast<int>(size / 2); i < size; i += 1) {
+			points[i].position = { dist2(gen),dist2(gen) };
+			points[i].velocity = { 0,0 };
+			points[i].acceleration = { 0,0 };
+			points[i].mass = 1000 * uni(gen);
 		}
+		std::cout << size<<" "<< sizeof(Body)<<" "<<sizeof(float2);
+
+		//for (int i = 0; i < size; ++i) {
+		//	std::cout << "Point " << i << ": ("
+		//		<< points[i].position.x << ", "
+		//		<< points[i].position.y << ")" << std::endl;
+		//}
+
 
 	}
 
@@ -110,16 +139,27 @@ public:
 
 		glBindVertexArray(VAO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * size * 2, points, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, (sizeof(Body)) * size, points, GL_DYNAMIC_DRAW);
 
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Body), (void*)offsetof(Body, position));     
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Body), (void*)offsetof(Body, velocity));     
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Body), (void*)offsetof(Body, acceleration)); 
+		glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Body), (void*)offsetof(Body, mass));         
+
 		glEnableVertexAttribArray(0);
 		glPointSize(1.0f);
+		
+		cudaGraphicsGLRegisterBuffer(&cudaVBO, VBO, cudaGraphicsRegisterFlagsWriteDiscard);
+		cudaError_t launchErr = cudaGetLastError();
 
+		if (launchErr != cudaSuccess) {
+			std::cerr << "Kernel launch error: " << cudaGetErrorString(launchErr) << std::endl;
+
+		}
 	}
 
 	void render() {
-		float2* d_pixels = nullptr;
+		Body* d_pixels = nullptr;
 		size_t num_bytes = 0;
 
 		glFinish();
@@ -138,10 +178,9 @@ public:
 		}
 
 		dim3 threads(32, 32);
-		dim3 blocks((width + threads.x - 1) / threads.x, (height + threads.y - 1) / threads.y);
-		//std::cout << "Launching " << blocks.x << " blocks of " << threads.x << " threads" << std::endl;
+		dim3 blocks((Ncol + threads.x - 1) / threads.x, (Nrow + threads.y - 1) / threads.y);
 
-		kernel << <blocks, threads >> > (d_pixels, width, height);
+		kernel << <blocks, threads >> > (d_pixels, Ncol, Nrow);
 
 		cudaError_t launchErr = cudaGetLastError();
 		cudaError_t syncErr = cudaDeviceSynchronize();
@@ -159,7 +198,6 @@ public:
 
 
 	void loop() {
-		cudaGraphicsGLRegisterBuffer(&cudaVBO, VBO, cudaGraphicsRegisterFlagsWriteDiscard);
 		while (!glfwWindowShouldClose(window)) {
 			glClear(GL_COLOR_BUFFER_BIT);
 			render();
