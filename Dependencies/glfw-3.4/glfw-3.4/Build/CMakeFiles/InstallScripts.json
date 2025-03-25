@@ -1,0 +1,11 @@
+{
+	"InstallScripts" : 
+	[
+		"D:/Projects/NBody/Dependencies/glfw-3.4/glfw-3.4/Build/cmake_install.cmake",
+		"D:/Projects/NBody/Dependencies/glfw-3.4/glfw-3.4/Build/src/cmake_install.cmake",
+		"D:/Projects/NBody/Dependencies/glfw-3.4/glfw-3.4/Build/examples/cmake_install.cmake",
+		"D:/Projects/NBody/Dependencies/glfw-3.4/glfw-3.4/Build/tests/cmake_install.cmake",
+		"D:/Projects/NBody/Dependencies/glfw-3.4/glfw-3.4/Build/docs/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
