@@ -110,19 +110,27 @@ public:
 		std::uniform_real_distribution<float> uni(0.0, 1.0f);
 
 
-		for (int i = 0; i < size/2; i += 1) {
+		points[0].position = { dist(gen),dist(gen) };
+		points[0].velocity = { dist(gen),dist(gen) };
+		points[0].acceleration = { 0,0 };
+		points[0].prev_position = { 0,0 };
+		points[0].mass = 10000000 ;
+
+
+		for (int i = 1; i < size / 2; i += 1) {
 			points[i].position = { dist(gen),dist(gen) };
 			points[i].velocity = { dist(gen),dist(gen) };
 			points[i].acceleration = { 0,0 };
 			points[i].prev_position = { 0,0 };
-			points[i].mass = 100000* uni(gen);
+			points[i].mass = 100000 * uni(gen);
 		}
+
 
 		for (int i = static_cast<int>(size / 2); i < size; i += 1) {
 			points[i].position = { dist2(gen),dist2(gen) };
 			points[i].velocity = { dist(gen),dist(gen) };
 			points[i].acceleration = { 0,0 };
-			points[i].mass = 100000* uni(gen);
+			points[i].mass = 100000 * uni(gen);
 		}
 
 
@@ -147,7 +155,7 @@ public:
 		glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(Body), (void*)offsetof(Body, mass));
 
 		glEnableVertexAttribArray(0);
-		glPointSize(1.0f);
+		glPointSize(2.0f);
 
 		cudaGraphicsGLRegisterBuffer(&cudaVBO, VBO, cudaGraphicsRegisterFlagsWriteDiscard);
 		cudaError_t launchErr = cudaGetLastError();
@@ -181,6 +189,7 @@ public:
 		dim3 blocks((Ncol + threads.x - 1) / threads.x, (Nrow + threads.y - 1) / threads.y);
 
 		kernel << <blocks, threads >> > (d_pixels, Ncol, Nrow);
+		changeMean << <blocks, threads >> > (d_pixels, Ncol, Nrow);
 
 		cudaError_t launchErr = cudaGetLastError();
 		cudaError_t syncErr = cudaDeviceSynchronize();

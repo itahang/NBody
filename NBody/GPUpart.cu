@@ -4,7 +4,7 @@
 __device__ float2 normalizedVector(float2 vec, float epslon = 0.0001) {
 	float dist_sq = vec.x * vec.x + vec.y * vec.y + epslon;
 	float inv_dist = rsqrtf(dist_sq);
-	return { vec.x * inv_dist, vec.y * inv_dist }; 
+	return { vec.x * inv_dist, vec.y * inv_dist };
 }
 
 __device__ float2 calcAcceleration(Body* s, Body* t, float epsilon, float rfactor = 100.0) {
@@ -17,9 +17,10 @@ __device__ float2 calcAcceleration(Body* s, Body* t, float epsilon, float rfacto
 }
 
 
+__device__ float2 meanposition;
 
 __global__ void kernel(Body* d_pixels, int Width, int Height) {
-	
+
 
 	int idx = threadIdx.x + blockDim.x * blockIdx.x;
 	int idy = threadIdx.y + blockDim.y * blockIdx.y;
@@ -29,6 +30,10 @@ __global__ void kernel(Body* d_pixels, int Width, int Height) {
 
 	if (idx < Width && idy < Height) {
 		int pixelIndex = idx + Width * idy;
+
+		if (pixelIndex == 0) {
+			meanposition = { 0,0 };
+		}
 
 		float2 old_position = d_pixels[pixelIndex].position;
 
@@ -50,6 +55,28 @@ __global__ void kernel(Body* d_pixels, int Width, int Height) {
 
 		d_pixels[pixelIndex].prev_position = old_position;
 		d_pixels[pixelIndex].position = new_position;
+
+		float tempx = d_pixels[pixelIndex].position.x / (Width * Height);
+		float tempy = d_pixels[pixelIndex].position.y / (Width * Height);;
+		atomicAdd(&meanposition.x, tempx);
+		atomicAdd(&meanposition.y, tempy);
+	}
+}
+
+
+__global__ void changeMean(Body* d_pixels, int Width, int Height) {
+	// Taking Average mean;
+
+	int idx = threadIdx.x + blockDim.x * blockIdx.x;
+	int idy = threadIdx.y + blockDim.y * blockIdx.y;
+
+	const float dt = 0.001;
+	const float epsilon = 1e-2;
+
+	if (idx < Width && idy < Height) {
+		int pixelIndex = idx + Width * idy;
+		d_pixels[pixelIndex].position.x -= meanposition.x;
+		d_pixels[pixelIndex].position.y -= meanposition.y;
 
 	}
 }
