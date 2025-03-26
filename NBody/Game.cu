@@ -115,14 +115,14 @@ public:
 			points[i].velocity = { dist(gen),dist(gen) };
 			points[i].acceleration = { 0,0 };
 			points[i].prev_position = { 0,0 };
-			points[i].mass = 1000; //* uni(gen);
+			points[i].mass = 100000* uni(gen);
 		}
 
 		for (int i = static_cast<int>(size / 2); i < size; i += 1) {
 			points[i].position = { dist2(gen),dist2(gen) };
 			points[i].velocity = { dist(gen),dist(gen) };
 			points[i].acceleration = { 0,0 };
-			points[i].mass = 1000; //* uni(gen);
+			points[i].mass = 100000* uni(gen);
 		}
 
 
