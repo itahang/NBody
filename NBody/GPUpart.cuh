@@ -7,6 +7,8 @@
 
 extern __global__ void kernel(Body* d_pixels, int Width, int Height);
 
+//extern __device__ float2 calcAcceleration(Body* s, Body* t, float epsilon);
+
 #endif // !KERNEL_PART
 
 

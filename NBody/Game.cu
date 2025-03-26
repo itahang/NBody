@@ -113,21 +113,19 @@ public:
 		std::uniform_real_distribution<float> uni(0.0, 1.0f);
 
 
-		for (int i = 0; i < size / 2; i += 1) {
+		for (int i = 0; i < size ; i += 1) {
 			points[i].position = { dist(gen),dist(gen) };
 			points[i].velocity = { 0,0 };
 			points[i].acceleration = { 0,0 };
 			points[i].mass = 1000 * uni(gen);
 		}
 
-
-
-		for (int i = static_cast<int>(size / 2); i < size; i += 1) {
-			points[i].position = { dist2(gen),dist2(gen) };
-			points[i].velocity = { 0,0 };
-			points[i].acceleration = { 0,0 };
-			points[i].mass = 1000 * uni(gen);
-		}
+		//for (int i = static_cast<int>(size / 2); i < size; i += 1) {
+		//	points[i].position = { dist2(gen),dist2(gen) };
+		//	points[i].velocity = { 0,0 };
+		//	points[i].acceleration = { 0,0 };
+		//	points[i].mass = 1000 * uni(gen);
+		//}
 
 
 
