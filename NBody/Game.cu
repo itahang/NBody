@@ -10,7 +10,6 @@
 #include<functional>
 
 
-
 #include <cuda_gl_interop.h>
 #include<cuda_runtime.h>
 #include<device_launch_parameters.h>
@@ -21,7 +20,7 @@
 
 #define SOME_ERROR -1
 
-
+__device__ float2 meanposition = { 0,0 };
 class Game
 {
 private:
@@ -110,12 +109,13 @@ public:
 		std::uniform_real_distribution<float> uni(0.0, 1.0f);
 
 
-		points[0].position = { dist(gen),dist(gen) };
-		points[0].velocity = { dist(gen),dist(gen) };
+		points[0].position = { 0,0 };
+		points[0].velocity = { 0,0 };
 		points[0].acceleration = { 0,0 };
 		points[0].prev_position = { 0,0 };
-		points[0].mass = 10000000 ;
+		points[0].mass = 1.989*10e16;
 
+		meanposition = points[0].position;
 
 		for (int i = 1; i < size / 2; i += 1) {
 			points[i].position = { dist(gen),dist(gen) };
@@ -155,7 +155,7 @@ public:
 		glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(Body), (void*)offsetof(Body, mass));
 
 		glEnableVertexAttribArray(0);
-		glPointSize(2.0f);
+		glPointSize(0.5f);
 
 		cudaGraphicsGLRegisterBuffer(&cudaVBO, VBO, cudaGraphicsRegisterFlagsWriteDiscard);
 		cudaError_t launchErr = cudaGetLastError();
@@ -188,8 +188,7 @@ public:
 		dim3 threads(32, 32);
 		dim3 blocks((Ncol + threads.x - 1) / threads.x, (Nrow + threads.y - 1) / threads.y);
 
-		kernel << <blocks, threads >> > (d_pixels, Ncol, Nrow);
-		changeMean << <blocks, threads >> > (d_pixels, Ncol, Nrow);
+		kernel <<<blocks, threads >> > (d_pixels, Ncol, Nrow);
 
 		cudaError_t launchErr = cudaGetLastError();
 		cudaError_t syncErr = cudaDeviceSynchronize();

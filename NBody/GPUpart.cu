@@ -17,7 +17,7 @@ __device__ float2 calcAcceleration(Body* s, Body* t, float epsilon, float rfacto
 }
 
 
-__device__ float2 meanposition;
+extern __device__ float2 meanposition;
 
 __global__ void kernel(Body* d_pixels, int Width, int Height) {
 
@@ -31,9 +31,8 @@ __global__ void kernel(Body* d_pixels, int Width, int Height) {
 	if (idx < Width && idy < Height) {
 		int pixelIndex = idx + Width * idy;
 
-		if (pixelIndex == 0) {
-			meanposition = { 0,0 };
-		}
+		meanposition = d_pixels[0].position;
+		__syncthreads();
 
 		float2 old_position = d_pixels[pixelIndex].position;
 
@@ -56,27 +55,9 @@ __global__ void kernel(Body* d_pixels, int Width, int Height) {
 		d_pixels[pixelIndex].prev_position = old_position;
 		d_pixels[pixelIndex].position = new_position;
 
-		float tempx = d_pixels[pixelIndex].position.x / (Width * Height);
-		float tempy = d_pixels[pixelIndex].position.y / (Width * Height);;
-		atomicAdd(&meanposition.x, tempx);
-		atomicAdd(&meanposition.y, tempy);
-	}
-}
-
-
-__global__ void changeMean(Body* d_pixels, int Width, int Height) {
-	// Taking Average mean;
-
-	int idx = threadIdx.x + blockDim.x * blockIdx.x;
-	int idy = threadIdx.y + blockDim.y * blockIdx.y;
-
-	const float dt = 0.001;
-	const float epsilon = 1e-2;
-
-	if (idx < Width && idy < Height) {
-		int pixelIndex = idx + Width * idy;
-		d_pixels[pixelIndex].position.x -= meanposition.x;
-		d_pixels[pixelIndex].position.y -= meanposition.y;
+		d_pixels[pixelIndex].position.x = d_pixels[pixelIndex].position.x - meanposition.x;
+		d_pixels[pixelIndex].position.y = d_pixels[pixelIndex].position.y - meanposition.y;
 
 	}
+
 }
