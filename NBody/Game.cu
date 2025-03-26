@@ -6,6 +6,10 @@
 
 #include<iostream>
 #include<random>
+#include<thread>
+#include<functional>
+
+
 
 #include <cuda_gl_interop.h>
 #include<cuda_runtime.h>
@@ -32,7 +36,7 @@ private:
 		}
 
 		// Get the video mode of the primary monitor
-		
+
 		//GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 
 
@@ -109,26 +113,25 @@ public:
 		std::uniform_real_distribution<float> uni(0.0, 1.0f);
 
 
-
-		for (int i = 0; i < size/2; i += 1) {
+		for (int i = 0; i < size / 2; i += 1) {
 			points[i].position = { dist(gen),dist(gen) };
 			points[i].velocity = { 0,0 };
 			points[i].acceleration = { 0,0 };
 			points[i].mass = 1000 * uni(gen);
 		}
+
+
+
 		for (int i = static_cast<int>(size / 2); i < size; i += 1) {
 			points[i].position = { dist2(gen),dist2(gen) };
 			points[i].velocity = { 0,0 };
 			points[i].acceleration = { 0,0 };
 			points[i].mass = 1000 * uni(gen);
 		}
-		std::cout << size<<" "<< sizeof(Body)<<" "<<sizeof(float2);
 
-		//for (int i = 0; i < size; ++i) {
-		//	std::cout << "Point " << i << ": ("
-		//		<< points[i].position.x << ", "
-		//		<< points[i].position.y << ")" << std::endl;
-		//}
+
+
+		std::cout << size << " " << sizeof(Body) << " " << sizeof(float2);
 
 
 	}
@@ -141,14 +144,14 @@ public:
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 		glBufferData(GL_ARRAY_BUFFER, (sizeof(Body)) * size, points, GL_DYNAMIC_DRAW);
 
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Body), (void*)offsetof(Body, position));     
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Body), (void*)offsetof(Body, velocity));     
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Body), (void*)offsetof(Body, acceleration)); 
-		glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Body), (void*)offsetof(Body, mass));         
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Body), (void*)offsetof(Body, position));
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Body), (void*)offsetof(Body, velocity));
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Body), (void*)offsetof(Body, acceleration));
+		glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Body), (void*)offsetof(Body, mass));
 
 		glEnableVertexAttribArray(0);
 		glPointSize(1.0f);
-		
+
 		cudaGraphicsGLRegisterBuffer(&cudaVBO, VBO, cudaGraphicsRegisterFlagsWriteDiscard);
 		cudaError_t launchErr = cudaGetLastError();
 

@@ -1,7 +1,7 @@
 ﻿#include"Game.cu"
 
 int main() {
-	Game g(800, 800, 1000, 1000);
+	Game g(800, 1080, 100, 100);
 	g.loadShader();
 	g.setPoints();
 	g.openGLInits();
