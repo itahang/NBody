@@ -9,6 +9,8 @@ struct Body {
 	float2 position;
 	float2 velocity;
 	float2 acceleration;
+	float2 prev_position;
+
 	float mass;
 };
 
