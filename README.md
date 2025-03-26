@@ -1,3 +1,3 @@
 # NBody
 
-NBody Simulation wirtten in C++ and CUDA.
+NBody Simulation written in C++ and CUDA.
