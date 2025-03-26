@@ -20,7 +20,7 @@
 
 #define SOME_ERROR -1
 
-__device__ float2 meanposition = { 0,0 };
+__device__ double2 meanposition = { 0,0 };
 class Game
 {
 private:
@@ -104,9 +104,9 @@ public:
 		points = new Body[size];
 		std::random_device rd;
 		std::mt19937 gen(rd());
-		std::normal_distribution<float> dist(0.0, 0.10f);
-		std::normal_distribution<float> dist2(0.0, 1.0f);
-		std::uniform_real_distribution<float> uni(0.0, 1.0f);
+		std::normal_distribution<double> dist(0.0, 0.10f);
+		std::normal_distribution<double> dist2(0.0, 1.0f);
+		std::uniform_real_distribution<double> uni(0.0, 1.0f);
 
 
 		points[0].position = { 0,0 };
@@ -135,7 +135,7 @@ public:
 
 
 
-		std::cout << size << " " << sizeof(Body) << " " << sizeof(float2);
+		std::cout << size << " " << sizeof(Body) << " " << sizeof(double2);
 
 
 	}
@@ -148,11 +148,11 @@ public:
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 		glBufferData(GL_ARRAY_BUFFER, (sizeof(Body)) * size, points, GL_DYNAMIC_DRAW);
 
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Body), (void*)offsetof(Body, position));
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Body), (void*)offsetof(Body, velocity));
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Body), (void*)offsetof(Body, acceleration));
-		glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Body), (void*)offsetof(Body, prev_position));
-		glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(Body), (void*)offsetof(Body, mass));
+		glVertexAttribPointer(0, 2, GL_DOUBLE, GL_FALSE, sizeof(Body), (void*)offsetof(Body, position));
+		glVertexAttribPointer(1, 2, GL_DOUBLE, GL_FALSE, sizeof(Body), (void*)offsetof(Body, velocity));
+		glVertexAttribPointer(2, 2, GL_DOUBLE, GL_FALSE, sizeof(Body), (void*)offsetof(Body, acceleration));
+		glVertexAttribPointer(3, 2, GL_DOUBLE, GL_FALSE, sizeof(Body), (void*)offsetof(Body, prev_position));
+		glVertexAttribPointer(4, 1, GL_DOUBLE, GL_FALSE, sizeof(Body), (void*)offsetof(Body, mass));
 
 		glEnableVertexAttribArray(0);
 		glPointSize(0.5f);

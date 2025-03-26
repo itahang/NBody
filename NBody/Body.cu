@@ -6,12 +6,12 @@
 
 #pragma pack(push, 1)
 struct Body {
-	float2 position;
-	float2 velocity;
-	float2 acceleration;
-	float2 prev_position;
+	double2 position;
+	double2 velocity;
+	double2 acceleration;
+	double2 prev_position;
 
-	float mass;
+	double mass;
 };
 
 #pragma pack(pop)
